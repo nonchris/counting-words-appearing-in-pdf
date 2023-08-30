@@ -138,7 +138,7 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
 
     with open(document_path, 'rb') as file:
         pdf_reader = PyPDF2.PdfReader(file)
-        pages = pdf_reader.pages[11:30]
+        pages = pdf_reader.pages
 
         # iterate over pages and event their content
         for i, page in enumerate(pages, 1):
