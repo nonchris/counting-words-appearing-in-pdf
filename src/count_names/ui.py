@@ -37,30 +37,10 @@ class App:
         self.output_dir_entry.insert(tk.END, output_dir)
         self.output_dir_label.config(text="Selected Output Directory:\n" + output_dir, font=self.custom_font)
 
-    def run_conversion(self):
+    def run_conversion_try_wrapper(self):
+        """ this should be called in production """
         try:
-            pdf_file = self.pdf_file_entry.get()
-            output_dir = self.output_dir_entry.get()
-            output_file = self.output_file_entry.get()
-
-            # TODO: maybe ask when the file already exists
-
-            out_path = f"{output_dir}/{output_file}.txt"
-            path = Path(out_path)
-            path_to_show = path.relative_to(path.home())
-
-            read_and_extract(pdf_file, write_result_to=out_path)
-
-            try:
-                os.startfile(output_dir)
-                self.result_label.config(text=f"Result saved under:\n{path_to_show}", font=self.custom_font)
-            except AttributeError:
-                self.result_label.config(
-                    text=f"Result saved under:\n"
-                         f"{path_to_show}\n"
-                         f"Can't open a file-manager on this operation system.\n",
-                    font=self.custom_font
-                )
+            self._run_conversion()
 
         except Exception as e:
             self.result_label.config(text=f"Something went wrong.\n"
@@ -69,6 +49,31 @@ class App:
                                           f"Error: '{type(e).__name__}'\n"
                                           f"Detail:\n"
                                           f"{e}", font=self.custom_font)
+
+    def _run_conversion(self):
+        """ """
+        pdf_file = self.pdf_file_entry.get()
+        output_dir = self.output_dir_entry.get()
+        output_file = self.output_file_entry.get()
+
+        # TODO: maybe ask when the file already exists
+
+        out_path = f"{output_dir}/{output_file}.txt"
+        path = Path(out_path)
+        path_to_show = path.relative_to(path.home())
+
+        read_and_extract(pdf_file, write_result_to=out_path)
+
+        try:
+            os.startfile(output_dir)
+            self.result_label.config(text=f"Result saved under:\n{path_to_show}", font=self.custom_font)
+        except AttributeError:
+            self.result_label.config(
+                text=f"Result saved under:\n"
+                     f"{path_to_show}\n"
+                     f"Can't open a file-manager on this operation system.\n",
+                font=self.custom_font
+            )
 
     def whitespace(self, cols=1):
         for i in range(0, cols):
@@ -135,7 +140,8 @@ class App:
             run_label.pack()
 
             # Create the run button
-            run_button = tk.Button(self.window, text="Run Conversion", command=self.run_conversion,
+            run_button = tk.Button(self.window, text="Run Conversion",
+                                   command=lambda: self._run_conversion(),
                                    font=self.custom_font)
             run_button.pack()
 
