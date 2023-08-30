@@ -103,7 +103,7 @@ def make_nice_output(data: nouns_dictT,
     for noun, occurrences in sorted_nouns:
         occurrences_sorted = sorted(list(occurrences))
         occ_str = page_num_seperator.join(
-            f"{page} {f'{todo_marker}' if maybe_sentence else ''}" for page, maybe_sentence in occurrences_sorted
+            f"{page}{f' {todo_marker}' if maybe_sentence else ''}" for page, maybe_sentence in occurrences_sorted
         )
 
         result += f"{noun}: {occ_str}{noun_separator}"
