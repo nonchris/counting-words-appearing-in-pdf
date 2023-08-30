@@ -109,6 +109,12 @@ def make_nice_output(data: nouns_dictT,
         result += f"{noun}: {occ_str}{noun_separator}"
 
 
+    if write_result_to:
+        with open(write_result_to, "w") as f:
+            f.write(result)
+
+        print(f"Result saved under: {write_result_to}")
+
     return result
 
 
@@ -138,7 +144,7 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
         for i, page in enumerate(pages, 1):
             process_page(page, i, nouns_dict)
 
-    res_text = make_nice_output(nouns_dict)
+    res_text = make_nice_output(nouns_dict, write_result_to=write_result_to)
 
     if report_to_console:
         from pprint import pprint
@@ -146,12 +152,6 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
         print(legend_str)
         pprint(nouns_dict)
         print(legend_str)
-
-    if write_result_to:
-        with open(write_result_to, "w") as f:
-            f.write(res_text)
-
-        print(f"Result saved under: {write_result_to}")
 
     return nouns_dict
 
