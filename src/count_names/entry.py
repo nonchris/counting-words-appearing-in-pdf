@@ -155,7 +155,9 @@ def read_and_extract(document_path,
                     label_to_update.config(
                         text=f"{i} of {page_len} pages scanned...\n"
                              f"Nouns found: {len(nouns_dict)}, total occurrences: {all_detections}")
-                print(f"{i}/{page_len}")
+
+                if report_to_console:
+                    print(f"{i}/{page_len}")
 
     if label_to_update:
         label_to_update.config(text=f"Done! Writing result...")

@@ -72,6 +72,7 @@ class App:
         # put counting in a thread, this might take a while!
         thread = threading.Thread(target=read_and_extract, args=(pdf_file,), daemon=True,
                                   kwargs=dict(
+                                      report_to_console=False,
                                       write_result_to=out_path,
                                       label_to_update=label_to_update)
                                   )
