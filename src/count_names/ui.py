@@ -1,3 +1,4 @@
+import threading
 from pathlib import Path
 import tkinter as tk
 import tkinter.font as tkfont
@@ -37,10 +38,10 @@ class App:
         self.output_dir_entry.insert(tk.END, output_dir)
         self.output_dir_label.config(text="Selected Output Directory:\n" + output_dir, font=self.custom_font)
 
-    def run_conversion_try_wrapper(self):
+    def run_detection_try_wrapper(self, label_to_update=None):
         """ this should be called in production """
         try:
-            self._run_conversion()
+            self._run_detection(label_to_update=label_to_update)
 
         except Exception as e:
             self.result_label.config(text=f"Something went wrong.\n"
@@ -50,8 +51,14 @@ class App:
                                           f"Detail:\n"
                                           f"{e}", font=self.custom_font)
 
-    def _run_conversion(self):
-        """ """
+    def _run_detection(self, label_to_update=None):
+        """
+        the actual detection function
+        executes word detection, writing,
+        waits for end of detection updates label at the end and tries to open an explorer window
+
+        use run_conversion_try_wrapper() to avoid an ui-crash if something fails
+        """
         pdf_file = self.pdf_file_entry.get()
         output_dir = self.output_dir_entry.get()
         output_file = self.output_file_entry.get()
@@ -62,18 +69,37 @@ class App:
         path = Path(out_path)
         path_to_show = path.relative_to(path.home())
 
-        read_and_extract(pdf_file, write_result_to=out_path)
+        # put counting in a thread, this might take a while!
+        thread = threading.Thread(target=read_and_extract, args=(pdf_file,), daemon=True,
+                                  kwargs=dict(
+                                      write_result_to=out_path,
+                                      label_to_update=label_to_update)
+                                  )
 
-        try:
-            os.startfile(output_dir)
-            self.result_label.config(text=f"Result saved under:\n{path_to_show}", font=self.custom_font)
-        except AttributeError:
-            self.result_label.config(
-                text=f"Result saved under:\n"
-                     f"{path_to_show}\n"
-                     f"Can't open a file-manager on this operation system.\n",
-                font=self.custom_font
-            )
+        thread.start()
+
+        def wait_show_result():
+            """ helper to check if thread is still going and finish task when it's done """
+            # if we're not done, reschedule
+            if thread.is_alive():
+                self.window.after(1000, wait_show_result)
+                return
+
+            # try to open an explorer
+            result_text = f"Result saved under:\n{path_to_show}"
+            try:
+                self.result_label.config(text=result_text, font=self.custom_font)
+                os.startfile(output_dir)
+
+            except AttributeError:
+                self.result_label.config(
+                    text=f"{result_text}\n"
+                         f"Can't open a file-manager on this operation system.\n",
+                    font=self.custom_font
+                )
+
+        # schedule first check if we're done
+        self.window.after(1000, wait_show_result)
 
     def whitespace(self, cols=1):
         for i in range(0, cols):
@@ -139,21 +165,24 @@ class App:
             run_label = tk.Label(self.window, text="", font=self.custom_font)
             run_label.pack()
 
+            # create label before button to be able to pass it into the function
+            self.result_label = tk.Label(self.window, text="", font=self.custom_font)
+
             # Create the run button
             run_button = tk.Button(self.window, text="Run Conversion",
-                                   command=lambda: self._run_conversion(),
+                                   command=lambda: self._run_detection(label_to_update=self.result_label),
                                    font=self.custom_font)
             run_button.pack()
 
             self.whitespace(1)
 
-            # Create the result label
-            self.result_label = tk.Label(self.window, text="", font=self.custom_font)
+            # now pack result label below button
             self.result_label.pack()
 
             self.window_initialized = True
 
         self.run_ui()
+
 
 if __name__ == '__main__':
     app = App()
