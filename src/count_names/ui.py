@@ -3,6 +3,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import filedialog
 import os
+from ctypes import windll
 
 from count_names.entry import read_and_extract
 from count_names.version import __version__
@@ -82,6 +83,8 @@ class App:
         if not self.window_initialized:
             # Create the main window
             self.window = tk.Tk()
+            windll.shcore.SetProcessDpiAwareness(1)
+
             self.window.title(f"Noun-Finder v{__version__}")
 
             # Create a custom font with a specific size
