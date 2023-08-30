@@ -77,7 +77,7 @@ def process_page(page: PyPDF2.PageObject, page_num: int, res_dict: nouns_dictT):
 
 def make_nice_output(data: nouns_dictT,
                      write_result_to="",
-                     todo_marker="TODO",
+                     todo_marker="(TODO)",
                      page_num_seperator=", ",
                      noun_separator="\n") -> str:
     """
