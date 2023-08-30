@@ -1,9 +1,10 @@
-from entry import start_counting
+from entry import read_and_extract
 
-def main():
+def main(doc, out_path=""):
     """Entry point for the application script"""
-    print("Call your main application code here")
+    read_and_extract(doc, out_path)
 
 
 if __name__ == '__main__':
-    main()
+    # main("../../document.docx")
+    main("../../mythopoetiques-dantesques-livre.pdf", "out.txt")
