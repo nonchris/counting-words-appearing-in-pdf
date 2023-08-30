@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 from typing import DefaultDict
+import tkinter as tk
 
 import PyPDF2
 
@@ -118,7 +119,10 @@ def make_nice_output(data: nouns_dictT,
     return result
 
 
-def read_and_extract(document_path, write_result_to="", report_to_console=True) -> nouns_dictT:
+def read_and_extract(document_path,
+                     write_result_to="",
+                     report_to_console=True,
+                     label_to_update: tk.Label = None) -> nouns_dictT:
     """
     Read a pdf, search for Nouns
     Save result to a file or/and report to console
@@ -127,6 +131,7 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
         document_path: path to the document to check
         write_result_to: optional path to a file for the result
         report_to_console: True to print to console, False will execute silent
+        label_to_update: a TK-Label for status updates
 
     Returns:
         The dict containing all nouns mapped to the pages they occur on
@@ -145,8 +150,15 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
         for i, page in enumerate(pages, 1):
             process_page(page, i, nouns_dict)
             if i % 10 == 0:
+                if label_to_update:
+                    all_detections = sum(len(s) for s in nouns_dict.values())
+                    label_to_update.config(
+                        text=f"{i} of {page_len} pages scanned...\n"
+                             f"Nouns found: {len(nouns_dict)}, total occurrences: {all_detections}")
                 print(f"{i}/{page_len}")
 
+    if label_to_update:
+        label_to_update.config(text=f"Done! Writing result...")
     res_text = make_nice_output(nouns_dict, write_result_to=write_result_to)
 
     if report_to_console:
