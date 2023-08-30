@@ -21,8 +21,9 @@ def main(doc, out_path=""):
 
 
 if __name__ == '__main__':
-    print("MAIN")
+    main_ui()
+    # print("MAIN")
     # this is more the developer mode without the ui
     # main("../../document.docx")
-    main("../../mythopoetiques-dantesques-livre.pdf", "out.txt")
+    # main("../../mythopoetiques-dantesques-livre.pdf", "out.txt")
     # run_ui()
