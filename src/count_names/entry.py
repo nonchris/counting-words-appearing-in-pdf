@@ -76,11 +76,22 @@ def process_page(page: PyPDF2.PageObject, page_num: int, res_dict: nouns_dictT):
 
 
 def make_nice_output(data: nouns_dictT,
+                     write_result_to="",
                      todo_marker="TODO",
                      page_num_seperator=", ",
                      noun_separator="\n") -> str:
     """
     sort alphabetically and pages ascending and format the output
+
+    Args:
+        data: the dict to format
+        write_result_to: optional path to a file for the result
+        todo_marker: label to sign that a page needs to be checked (default: 'TODO')
+        page_num_seperator: seperator between the page numbers (default: ', ')
+        noun_separator: seperator between the nouns (default: '\n')
+
+    Returns:
+        The formatted string
 
     example output:
     Chris: 42 (TODO), 69
