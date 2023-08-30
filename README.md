@@ -1,5 +1,5 @@
 # Counting Names
-A UI-based program to search a PDF for all nouns (words that start with a capitalized letter) and the pages they occur on.  
+A GUI-based program to search a PDF for all nouns (words that start with a capitalized letter) and the pages they occur on.  
 The result will be saved to a given file.  
 
 ### Install
