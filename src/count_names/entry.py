@@ -110,7 +110,7 @@ def make_nice_output(data: nouns_dictT,
 
 
     if write_result_to:
-        with open(write_result_to, "w") as f:
+        with open(write_result_to, "w", encoding="utf-8") as f:
             f.write(result)
 
         print(f"Result saved under: {write_result_to}")
@@ -141,8 +141,11 @@ def read_and_extract(document_path, write_result_to="", report_to_console=True) 
         pages = pdf_reader.pages
 
         # iterate over pages and event their content
+        page_len = len(pages)
         for i, page in enumerate(pages, 1):
             process_page(page, i, nouns_dict)
+            if i % 10 == 0:
+                print(f"{i}/{page_len}")
 
     res_text = make_nice_output(nouns_dict, write_result_to=write_result_to)
 
