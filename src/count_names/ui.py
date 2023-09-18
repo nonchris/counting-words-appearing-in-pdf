@@ -75,7 +75,8 @@ class App:
         """
         pdf_file = self.pdf_file_entry.get()
         blacklist_file = self.blacklist_entry.get()
-        page_offset_entry = int(self.page_offset_entry.get())
+        offset_entry = self.page_offset_entry.get()
+        page_offset_entry = int(offset_entry) if offset_entry else 0
         output_dir = self.output_dir_entry.get()
         output_file = self.output_file_entry.get()
 
