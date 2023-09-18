@@ -1,3 +1,4 @@
+import os.path
 import re
 from collections import defaultdict
 from typing import DefaultDict
@@ -19,13 +20,20 @@ def extract_word_from_header(word: str) -> str:
     return ""
 
 
-def process_page(page: PyPDF2.PageObject, page_num: int, res_dict: nouns_dictT):
+def process_page(page: PyPDF2.PageObject, page_num: int, res_dict: nouns_dictT, blacklist_set=None):
     """
     Args:
         page: page to evaluate
         page_num: the number of the page we're currently on
         res_dict: DefaultDict(list) where the findings are added to
+        blacklist_set: a set of words that shall be ignored
     """
+
+    # make sure we have a set.
+    # this makes the code simpler than checking for None AND the word in set each cycle
+    if blacklist_set is None:
+        blacklist_set = set()
+
     text = page.extract_text()
 
     words = text.split(" ")
@@ -73,7 +81,9 @@ def process_page(page: PyPDF2.PageObject, page_num: int, res_dict: nouns_dictT):
         if not word[-1].isalpha():
             word = word[:-1]
 
-        res_dict[word].add((page_num, potential_sentence_start))
+        # add it to the dict if it's not blacklisted
+        if word not in blacklist_set:
+            res_dict[word].add((page_num, potential_sentence_start))
 
 
 def make_nice_output(data: nouns_dictT,
@@ -119,9 +129,32 @@ def make_nice_output(data: nouns_dictT,
     return result
 
 
+def read_blacklist(file: str, word_delimiter=":") -> set[str]:
+    """
+    Read a file that has one word per line
+    Also can handle lines that are structured in the way 'word{word_delimiter}something', like 'word: pages'
+    """
+    with open(file, "r") as f:
+        lines = f.readlines()
+
+    word_set = set()
+    for line in lines:
+        line = line.strip()
+
+        if word_delimiter in line:
+            word = line.split(word_delimiter)[0]
+        else:
+            word = line
+
+        word_set.add(word)
+
+    return word_set
+
+
 def read_and_extract(document_path,
                      write_result_to="",
                      report_to_console=True,
+                     blacklist_file: str = None,
                      label_to_update: tk.Label = None) -> nouns_dictT:
     """
     Read a pdf, search for Nouns
@@ -130,12 +163,18 @@ def read_and_extract(document_path,
     Args:
         document_path: path to the document to check
         write_result_to: optional path to a file for the result
-        report_to_console: True to print to console, False will execute silent
+        report_to_console: True to print to console, False will execute silent#
+        blacklist_file: file with words to blacklist
         label_to_update: a TK-Label for status updates
 
     Returns:
         The dict containing all nouns mapped to the pages they occur on
     """
+
+    blacklist_set = set()
+    if blacklist_file:
+        blacklist_set = read_blacklist(blacklist_file)
+
     # each name mapped to the page-numbers it occurs on
     # each page is only interesting once, so we use a set()
     # the tuple contains the page and if this detection might just be the start of a sentence
@@ -148,7 +187,7 @@ def read_and_extract(document_path,
         # iterate over pages and event their content
         page_len = len(pages)
         for i, page in enumerate(pages, 1):
-            process_page(page, i, nouns_dict)
+            process_page(page, i, nouns_dict, blacklist_set=blacklist_set)
             if i % 10 == 0:
                 if label_to_update:
                     all_detections = sum(len(s) for s in nouns_dict.values())
@@ -172,3 +211,10 @@ def read_and_extract(document_path,
 
     return nouns_dict
 
+
+if __name__ == '__main__':
+    if os.path.isfile("mythopoetiques-dantesques-livre.pdf"):
+
+        read_and_extract("./mythopoetiques-dantesques-livre.pdf")
+
+    print("NO")

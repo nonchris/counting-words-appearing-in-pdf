@@ -15,8 +15,13 @@ class App:
         self.window_initialized = False
         self.window = None
         self.custom_font = None
+
         self.pdf_file_entry = None
         self.pdf_file_label = None
+
+        self.blacklist_entry = None
+        self.blacklist_label = None
+
         self.output_dir_entry = None
         self.output_dir_label = None
         self.output_file_entry = None
@@ -31,6 +36,12 @@ class App:
         self.pdf_file_entry.delete(0, tk.END)
         self.pdf_file_entry.insert(tk.END, file_path)
         self.pdf_file_label.config(text="Selected PDF:\n" + file_path, font=self.custom_font)
+
+    def select_blacklist_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("text files", "*.txt")], initialdir=os.getcwd())
+        self.blacklist_entry.delete(0, tk.END)
+        self.blacklist_entry.insert(tk.END, file_path)
+        self.blacklist_label.config(text="Selected PDF:\n" + file_path, font=self.custom_font)
 
     def select_output_directory(self):
         output_dir = filedialog.askdirectory(initialdir=os.getcwd())
@@ -60,6 +71,8 @@ class App:
         use run_conversion_try_wrapper() to avoid an ui-crash if something fails
         """
         pdf_file = self.pdf_file_entry.get()
+        blacklist_file = self.blacklist_entry.get()
+        print(blacklist_file)
         output_dir = self.output_dir_entry.get()
         output_file = self.output_file_entry.get()
 
@@ -74,7 +87,9 @@ class App:
                                   kwargs=dict(
                                       report_to_console=False,
                                       write_result_to=out_path,
-                                      label_to_update=label_to_update)
+                                      label_to_update=label_to_update,
+                                      blacklist_file=blacklist_file,
+                                  ),
                                   )
 
         thread.start()
@@ -162,6 +177,21 @@ class App:
             self.output_hint_label = tk.Label(self.window, text="(Ending of the file will be .txt)",
                                               font=self.custom_font)
             self.output_hint_label.pack()
+
+            self.whitespace(2)
+
+            # Create blacklist selection button
+            blacklist_button = tk.Button(self.window, text="Select a textfile with words to BLACKLIST",
+                                         command=self.select_blacklist_file, font=self.custom_font)
+            blacklist_button.pack()
+
+            # Create the output directory entry field
+            self.blacklist_label = tk.Label(self.window, text="Blacklist file:", font=self.custom_font)
+            self.blacklist_label.pack()
+            self.blacklist_entry = tk.Entry(self.window, font=self.custom_font)
+            self.blacklist_entry.pack()
+
+            self.whitespace(2)
 
             run_label = tk.Label(self.window, text="", font=self.custom_font)
             run_label.pack()
