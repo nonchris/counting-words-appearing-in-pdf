@@ -19,6 +19,9 @@ class App:
         self.pdf_file_entry = None
         self.pdf_file_label = None
 
+        self.page_offset_entry = None
+        self.page_offset_label = None
+
         self.blacklist_entry = None
         self.blacklist_label = None
 
@@ -72,7 +75,7 @@ class App:
         """
         pdf_file = self.pdf_file_entry.get()
         blacklist_file = self.blacklist_entry.get()
-        print(blacklist_file)
+        page_offset_entry = int(self.page_offset_entry.get())
         output_dir = self.output_dir_entry.get()
         output_file = self.output_file_entry.get()
 
@@ -89,6 +92,7 @@ class App:
                                       write_result_to=out_path,
                                       label_to_update=label_to_update,
                                       blacklist_file=blacklist_file,
+                                      page_offset_entry=page_offset_entry
                                   ),
                                   )
 
@@ -153,6 +157,15 @@ class App:
             self.pdf_file_label.pack()
             self.pdf_file_entry = tk.Entry(self.window, font=self.custom_font)
             self.pdf_file_entry.pack()
+
+            self.whitespace(2)
+
+            # Create the output file name entry field
+            self.page_offset_label = tk.Label(self.window, text="Pages before page '1':",
+                                              font=self.custom_font)
+            self.page_offset_label.pack()
+            self.page_offset_entry = tk.Entry(self.window, font=self.custom_font)
+            self.page_offset_entry.pack()
 
             self.whitespace(2)
 

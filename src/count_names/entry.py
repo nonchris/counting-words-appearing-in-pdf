@@ -155,7 +155,9 @@ def read_and_extract(document_path,
                      write_result_to="",
                      report_to_console=True,
                      blacklist_file: str = None,
-                     label_to_update: tk.Label = None) -> nouns_dictT:
+                     label_to_update: tk.Label = None,
+                     page_offset_entry=0
+                     ) -> nouns_dictT:
     """
     Read a pdf, search for Nouns
     Save result to a file or/and report to console
@@ -165,6 +167,7 @@ def read_and_extract(document_path,
         write_result_to: optional path to a file for the result
         report_to_console: True to print to console, False will execute silent#
         blacklist_file: file with words to blacklist
+        page_offset_entry: pages to skip before real content starts
         label_to_update: a TK-Label for status updates
 
     Returns:
@@ -182,11 +185,12 @@ def read_and_extract(document_path,
 
     with open(document_path, 'rb') as file:
         pdf_reader = PyPDF2.PdfReader(file)
-        pages = pdf_reader.pages
+        pages = pdf_reader.pages[page_offset_entry:]
 
         # iterate over pages and event their content
         page_len = len(pages)
         for i, page in enumerate(pages, 1):
+
             process_page(page, i, nouns_dict, blacklist_set=blacklist_set)
             if i % 10 == 0:
                 if label_to_update:
